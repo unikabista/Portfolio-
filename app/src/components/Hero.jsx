@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Sparkles, Code2, Brain, Cpu } from 'lucide-react';
 import { personalInfo } from '@/constants';
+import profilePhoto from '@/assets/profile.jpg';
 
 // ── Typing animation hook ─────────────────────────────────────────────────────
 const roles = [
@@ -177,8 +178,8 @@ const Hero = () => {
             <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 opacity-30 blur-xl" />
             {/* Gradient border ring */}
             <div className="relative p-[2px] rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 animate-glow-ring">
-              <div className="w-24 h-24 rounded-full bg-slate-950 flex items-center justify-center">
-                <span className="text-2xl font-black gradient-text-animated select-none">UB</span>
+              <div className="w-24 h-24 rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover rounded-full" />
               </div>
             </div>
             {/* Online status dot */}
