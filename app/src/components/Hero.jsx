@@ -1,14 +1,88 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Sparkles, Code2, Brain, Cpu } from 'lucide-react';
 import { personalInfo } from '@/constants';
 
+// ── Typing animation hook ─────────────────────────────────────────────────────
+const roles = [
+  'Developer & AI Innovator',
+  'Machine Learning Engineer',
+  'Computer Vision Builder',
+  'Python Developer',
+];
+
+function useTypingEffect() {
+  const [typed, setTyped] = useState('');
+  const [roleIdx, setRoleIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const role = roles[roleIdx];
+    let timeout;
+
+    if (!deleting && typed.length < role.length) {
+      timeout = setTimeout(() => setTyped(role.slice(0, typed.length + 1)), 80);
+    } else if (!deleting && typed.length === role.length) {
+      timeout = setTimeout(() => setDeleting(true), 2600);
+    } else if (deleting && typed.length > 0) {
+      timeout = setTimeout(() => setTyped(typed.slice(0, -1)), 40);
+    } else if (deleting && typed.length === 0) {
+      setDeleting(false);
+      setRoleIdx((i) => (i + 1) % roles.length);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typed, deleting, roleIdx]);
+
+  return typed;
+}
+
+// ── Animated stat counter ─────────────────────────────────────────────────────
+function StatCounter({ end, suffix, label }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const duration = 1800;
+          const startTime = performance.now();
+          const animate = (now) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * end));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
+        {count}{suffix}
+      </div>
+      <div className="text-xs sm:text-sm text-slate-400">{label}</div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 const Hero = () => {
   const canvasRef = useRef(null);
+  const typed = useTypingEffect();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -22,50 +96,45 @@ const Hero = () => {
 
     const createParticles = () => {
       particles = [];
-      const particleCount = Math.min(50, Math.floor(window.innerWidth / 30));
-      for (let i = 0; i < particleCount; i++) {
+      const count = Math.min(70, Math.floor(window.innerWidth / 22));
+      for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           vx: (Math.random() - 0.5) * 0.5,
           vy: (Math.random() - 0.5) * 0.5,
-          radius: Math.random() * 2 + 1,
-          opacity: Math.random() * 0.5 + 0.2,
+          radius: Math.random() * 2 + 0.5,
+          opacity: Math.random() * 0.6 + 0.2,
         });
       }
     };
 
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((particle, i) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(139, 92, 246, ${particle.opacity})`;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(139, 92, 246, ${p.opacity})`;
         ctx.fill();
 
-        // Draw connections
         particles.slice(i + 1).forEach((other) => {
-          const dx = particle.x - other.x;
-          const dy = particle.y - other.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 150) {
+          const dx = p.x - other.x;
+          const dy = p.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
             ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
+            ctx.moveTo(p.x, p.y);
             ctx.lineTo(other.x, other.y);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${0.1 * (1 - distance / 150)})`;
+            ctx.strokeStyle = `rgba(139, 92, 246, ${0.12 * (1 - dist / 130)})`;
             ctx.stroke();
           }
         });
       });
-
       animationId = requestAnimationFrame(drawParticles);
     };
 
@@ -73,13 +142,8 @@ const Hero = () => {
     createParticles();
     drawParticles();
 
-    const handleResize = () => {
-      resize();
-      createParticles();
-    };
-
+    const handleResize = () => { resize(); createParticles(); };
     window.addEventListener('resize', handleResize);
-
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', handleResize);
@@ -87,10 +151,7 @@ const Hero = () => {
   }, []);
 
   const scrollToProjects = () => {
-    const element = document.querySelector('#projects');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -98,124 +159,142 @@ const Hero = () => {
       id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950"
     >
-      {/* Animated Background Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.6 }}
-      />
+      {/* Canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ opacity: 0.7 }} />
 
-      {/* Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-fuchsia-600/10 rounded-full blur-3xl" />
+      {/* Gradient orbs */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-violet-600/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.2s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-fuchsia-600/10 rounded-full blur-3xl" />
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+        {/* ── Glowing Avatar ── */}
+        <div className="flex justify-center mb-8 animate-fade-in">
+          <div className="relative animate-float">
+            {/* Outer glow */}
+            <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 opacity-30 blur-xl" />
+            {/* Gradient border ring */}
+            <div className="relative p-[2px] rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-500 animate-glow-ring">
+              <div className="w-24 h-24 rounded-full bg-slate-950 flex items-center justify-center">
+                <span className="text-2xl font-black gradient-text-animated select-none">UB</span>
+              </div>
+            </div>
+            {/* Online status dot */}
+            <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-slate-950 flex items-center justify-center">
+              <div className="relative w-3.5 h-3.5">
+                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping-slow" />
+                <div className="relative w-3.5 h-3.5 rounded-full bg-green-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8 animate-fade-in">
           <Sparkles className="w-4 h-4 text-violet-400" />
-          <span className="text-sm text-slate-300">CS Junior @ ULM</span>
+          <span className="text-sm text-slate-300">CS Junior @ ULM · Available for Internships</span>
         </div>
 
-        {/* Main Headline */}
+        {/* Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in-up">
           <span className="text-white">Hi, I'm </span>
-          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
-            {personalInfo.name}
-          </span>
+          <span className="gradient-text-animated">{personalInfo.name}</span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-xl sm:text-2xl md:text-3xl text-slate-300 mb-4 font-light animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          Developer & AI Innovator
+        {/* Typing subtitle */}
+        <p
+          className="text-xl sm:text-2xl md:text-3xl text-slate-300 mb-4 font-light animate-fade-in-up min-h-[2.5rem] flex items-center justify-center gap-1"
+          style={{ animationDelay: '0.1s' }}
+        >
+          <span className="text-violet-300">{typed}</span>
+          <span className="animate-blink text-violet-400 font-thin">|</span>
         </p>
 
         {/* Description */}
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-400 mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <p
+          className="max-w-2xl mx-auto text-base sm:text-lg text-slate-400 mb-10 leading-relaxed animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           {personalInfo.tagline}. I build intelligent solutions using Python,
           Machine Learning, and Computer Vision — from AI accessibility agents to
           injury prevention platforms.
         </p>
 
-        {/* Tech Icons */}
-        <div className="flex items-center justify-center gap-6 mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
-            <Brain className="w-5 h-5 text-violet-400" />
-            <span className="text-sm text-slate-300">AI/ML</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
-            <Code2 className="w-5 h-5 text-cyan-400" />
-            <span className="text-sm text-slate-300">Full-Stack</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
-            <Cpu className="w-5 h-5 text-fuchsia-400" />
-            <span className="text-sm text-slate-300">Computer Vision</span>
-          </div>
+        {/* Tech icons */}
+        <div
+          className="flex items-center justify-center gap-4 mb-10 animate-fade-in-up flex-wrap"
+          style={{ animationDelay: '0.3s' }}
+        >
+          {[
+            { icon: Brain, label: 'AI/ML', color: 'text-violet-400' },
+            { icon: Code2, label: 'Full-Stack', color: 'text-cyan-400' },
+            { icon: Cpu, label: 'Computer Vision', color: 'text-fuchsia-400' },
+          ].map(({ icon: Icon, label, color }) => (
+            <div
+              key={label}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300"
+            >
+              <Icon className={`w-5 h-5 ${color}`} />
+              <span className="text-sm text-slate-300">{label}</span>
+            </div>
+          ))}
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+        {/* CTA buttons */}
+        <div
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up"
+          style={{ animationDelay: '0.4s' }}
+        >
           <button
             onClick={scrollToProjects}
-            className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/25 hover:scale-105"
+            className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/40 hover:scale-105"
           >
             <span className="relative z-10 flex items-center gap-2">
-              View Projects
+              View My Work
               <ArrowDown className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
 
           <a
             href={`mailto:${personalInfo.email}`}
-            className="px-8 py-4 rounded-xl font-semibold text-white border border-white/20 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 hover:scale-105"
+            className="px-8 py-4 rounded-xl font-semibold text-white border border-white/20 backdrop-blur-sm hover:bg-white/10 hover:border-violet-500/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-violet-500/10"
           >
             Get in Touch
           </a>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto mt-16 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-white mb-1">30%</div>
-            <div className="text-xs sm:text-sm text-slate-400">Accuracy Boost</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-white mb-1">500+</div>
-            <div className="text-xs sm:text-sm text-slate-400">Logs Analyzed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-white mb-1">40%</div>
-            <div className="text-xs sm:text-sm text-slate-400">Faster Detection</div>
-          </div>
+        {/* Animated stats */}
+        <div
+          className="grid grid-cols-3 gap-8 max-w-lg mx-auto mt-16 animate-fade-in-up"
+          style={{ animationDelay: '0.5s' }}
+        >
+          <StatCounter end={30}  suffix="%" label="Accuracy Boost"   />
+          <StatCounter end={500} suffix="+" label="Logs Analyzed"    />
+          <StatCounter end={40}  suffix="%" label="Faster Detection" />
         </div>
       </div>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent" />
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-950 to-transparent" />
 
       <style>{`
         @keyframes fade-in {
           from { opacity: 0; }
-          to { opacity: 1; }
+          to   { opacity: 1; }
         }
         @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
           animation: fade-in 0.6s ease-out forwards;
         }
         .animate-fade-in-up {
           opacity: 0;
-          animation: fade-in-up 0.6s ease-out forwards;
+          animation: fade-in-up 0.7s ease-out forwards;
         }
       `}</style>
     </section>
