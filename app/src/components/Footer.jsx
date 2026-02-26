@@ -6,7 +6,7 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const scrollToSection = (href: string) => {
+  const scrollToSection = (href) => {
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -21,7 +21,7 @@ const Footer = () => {
       {/* CTA Section */}
       <div className="relative py-20 sm:py-24">
         <div className="absolute inset-0 bg-gradient-to-b from-violet-600/5 to-transparent" />
-        
+
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
             Let's{' '}
@@ -29,9 +29,9 @@ const Footer = () => {
               Connect
             </span>
           </h2>
-          
+
           <p className="text-lg text-slate-400 mb-10 max-w-xl mx-auto">
-            I'm always open to discussing new opportunities, innovative projects, 
+            I'm always open to discussing new opportunities, innovative projects,
             or just having a chat about technology and AI.
           </p>
 
@@ -44,7 +44,7 @@ const Footer = () => {
               <Mail className="w-5 h-5" />
               <span>Send Email</span>
             </a>
-            
+
             <a
               href={personalInfo.linkedin}
               target="_blank"

@@ -63,7 +63,7 @@ export const experiences = [
       "Research and implement innovative AI technologies including NLP models and deep learning architectures"
     ]
   },
- 
+
 ];
 
 export const leadership = [

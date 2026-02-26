@@ -4,7 +4,7 @@ import ProjectCard from './ProjectCard';
 import { projects } from '@/constants';
 
 const Projects = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const Projects = () => {
           </h2>
 
           <p className="max-w-2xl mx-auto text-lg text-slate-400">
-            A showcase of my work in AI, machine learning, and full-stack development — 
+            A showcase of my work in AI, machine learning, and full-stack development —
             building solutions that make a real-world impact.
           </p>
         </div>

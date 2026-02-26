@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Briefcase, Calendar, ChevronRight, Code2, Wallet, Users, MapPin } from 'lucide-react';
 import { experiences, leadership } from '@/constants';
-import type { LucideIcon } from 'lucide-react';
 
-const iconMap: Record<string, LucideIcon> = {
+const iconMap = {
   Code2: Code2,
   Wallet: Wallet,
   Users: Users,
 };
 
 const Experience = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const Experience = () => {
           </h2>
 
           <p className="max-w-2xl mx-auto text-lg text-slate-400">
-            Professional experience building real-world solutions and leading 
+            Professional experience building real-world solutions and leading
             initiatives that empower the tech community.
           </p>
         </div>
@@ -109,7 +108,7 @@ const Experience = () => {
 
                   {/* Highlights */}
                   <ul className="space-y-2">
-                    {exp.highlights.map((highlight: string, i: number) => (
+                    {exp.highlights.map((highlight, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <ChevronRight className="w-4 h-4 text-violet-400 mt-0.5 flex-shrink-0" />
                         <span className="text-sm text-slate-400 leading-relaxed">{highlight}</span>

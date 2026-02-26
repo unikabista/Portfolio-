@@ -1,17 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Cpu, Code2, Wrench, Database, Brain, Sparkles } from 'lucide-react';
 import { skills } from '@/constants';
-import type { LucideIcon } from 'lucide-react';
 
-interface SkillCategory {
-  id: string;
-  title: string;
-  icon: LucideIcon;
-  color: string;
-  skills: { name: string; level: string }[];
-}
-
-const skillCategories: SkillCategory[] = [
+const skillCategories = [
   {
     id: 'languages',
     title: 'Languages',
@@ -50,7 +41,7 @@ const skillCategories: SkillCategory[] = [
 ];
 
 const Skills = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -102,7 +93,7 @@ const Skills = () => {
           </h2>
 
           <p className="max-w-2xl mx-auto text-lg text-slate-400">
-            A comprehensive toolkit built through hands-on experience in AI/ML, 
+            A comprehensive toolkit built through hands-on experience in AI/ML,
             full-stack development, and data engineering.
           </p>
         </div>

@@ -1,22 +1,6 @@
 import { ExternalLink, Github, Sparkles } from 'lucide-react';
 
-interface Project {
-  id: number;
-  title: string;
-  subtitle: string;
-  description: string;
-  achievements: string[];
-  techStack: string[];
-  github: string | null;
-  demo: string | null;
-  featured: boolean;
-}
-
-interface ProjectCardProps {
-  project: Project;
-}
-
-const ProjectCard = ({ project }: ProjectCardProps) => {
+const ProjectCard = ({ project }) => {
   const { title, subtitle, description, achievements, techStack, github, demo, featured } = project;
 
   return (
@@ -50,7 +34,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             Key Achievements
           </h4>
           <ul className="space-y-2">
-            {achievements.map((achievement: string, index: number) => (
+            {achievements.map((achievement, index) => (
               <li key={index} className="flex items-start gap-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-2 flex-shrink-0" />
                 <span className="text-sm text-slate-300 leading-relaxed">{achievement}</span>
@@ -62,7 +46,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         {/* Tech Stack */}
         <div className="mb-6">
           <div className="flex flex-wrap gap-2">
-            {techStack.map((tech: string, index: number) => (
+            {techStack.map((tech, index) => (
               <span
                 key={index}
                 className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-violet-500/20 hover:border-violet-500/30 hover:text-violet-300 transition-all duration-300"

@@ -2,17 +2,8 @@ import { useEffect, useRef } from 'react';
 import { ArrowDown, Sparkles, Code2, Brain, Cpu } from 'lucide-react';
 import { personalInfo } from '@/constants';
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  opacity: number;
-}
-
 const Hero = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,8 +12,8 @@ const Hero = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId: number;
-    let particles: Particle[] = [];
+    let animationId;
+    let particles = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -142,8 +133,8 @@ const Hero = () => {
 
         {/* Description */}
         <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-400 mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {personalInfo.tagline}. I build intelligent solutions using Python, 
-          Machine Learning, and Computer Vision — from AI accessibility agents to 
+          {personalInfo.tagline}. I build intelligent solutions using Python,
+          Machine Learning, and Computer Vision — from AI accessibility agents to
           injury prevention platforms.
         </p>
 
@@ -210,11 +201,11 @@ const Hero = () => {
           to { opacity: 1; }
         }
         @keyframes fade-in-up {
-          from { 
+          from {
             opacity: 0;
             transform: translateY(20px);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translateY(0);
           }
