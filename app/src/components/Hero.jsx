@@ -269,12 +269,20 @@ const Hero = () => {
 
         {/* Animated stats */}
         <div
-          className="grid grid-cols-3 gap-8 max-w-lg mx-auto mt-16 animate-fade-in-up"
+          className="flex items-center justify-center max-w-lg mx-auto mt-16 animate-fade-in-up divide-x divide-white/10"
           style={{ animationDelay: '0.5s' }}
         >
-          <StatCounter end={30}  suffix="%" label="Accuracy Boost"   />
-          <StatCounter end={500} suffix="+" label="Logs Analyzed"    />
-          <StatCounter end={40}  suffix="%" label="Faster Detection" />
+          <div className="px-8"><StatCounter end={30}  suffix="%" label="Accuracy Boost"   /></div>
+          <div className="px-8"><StatCounter end={500} suffix="+" label="Logs Analyzed"    /></div>
+          <div className="px-8"><StatCounter end={40}  suffix="%" label="Faster Detection" /></div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+        <span className="text-xs text-slate-400 tracking-widest uppercase">Scroll</span>
+        <div className="w-5 h-8 border-2 border-slate-500 rounded-full flex items-start justify-center p-1">
+          <div className="w-1 h-2 bg-violet-400 rounded-full animate-scroll-dot" />
         </div>
       </div>
 
@@ -296,6 +304,14 @@ const Hero = () => {
         .animate-fade-in-up {
           opacity: 0;
           animation: fade-in-up 0.7s ease-out forwards;
+        }
+        @keyframes scroll-dot {
+          0%   { transform: translateY(0); opacity: 1; }
+          80%  { transform: translateY(12px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 0; }
+        }
+        .animate-scroll-dot {
+          animation: scroll-dot 1.6s ease-in-out infinite;
         }
       `}</style>
     </section>

@@ -125,8 +125,12 @@ const Skills = () => {
                   {category.skills.map((skill, skillIndex) => (
                     <span
                       key={skillIndex}
-                      className="px-3 py-1.5 text-sm rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white hover:border-violet-500/30 transition-all duration-300 cursor-default"
+                      title={skill.level}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white hover:border-violet-500/30 transition-all duration-300 cursor-default"
                     >
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                        skill.level === 'Advanced' ? 'bg-violet-400' : 'bg-cyan-400/70'
+                      }`} />
                       {skill.name}
                     </span>
                   ))}

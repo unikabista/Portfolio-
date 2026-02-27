@@ -5,6 +5,7 @@ import { navLinks, personalInfo } from '@/constants';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -13,6 +14,22 @@ const Navbar = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = document.querySelectorAll('section[id], footer[id]');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (href) => {
@@ -55,10 +72,16 @@ const Navbar = () => {
                   e.preventDefault();
                   scrollToSection(link.href);
                 }}
-                className="text-sm text-slate-300 hover:text-white transition-colors relative group"
+                className={`text-sm transition-colors relative group ${
+                  activeSection === link.href.slice(1)
+                    ? 'text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-400 to-cyan-400 transition-all duration-300 group-hover:w-full" />
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-violet-400 to-cyan-400 transition-all duration-300 ${
+                  activeSection === link.href.slice(1) ? 'w-full' : 'w-0 group-hover:w-full'
+                }`} />
               </a>
             ))}
           </div>
